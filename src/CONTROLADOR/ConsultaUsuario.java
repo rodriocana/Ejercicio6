@@ -35,7 +35,8 @@ public class ConsultaUsuario {
         //como el número de columnas, nombres de columnas, tipos de datos, etc.
         //preparedStatement hay que usarlo obligatorio.
         
-        String consulta = "select * from usuario where nombre = ? AND password = ? ";
+        String consulta = "select * from usuario where nombre = ? AND password = ? ";  // aqui hacemos la consulta pasandole el nombre y password de los textField
+        // del login
         Connection conexion = JavaConnect.getConnection();
         PreparedStatement sentencia = conexion.prepareStatement(consulta);
         sentencia.setString(1, nombre);
@@ -48,7 +49,8 @@ public class ConsultaUsuario {
 
     public static Usuario recorrer(ResultSet rs) throws SQLException {
 
-        Usuario user = null;
+        Usuario user = null;  // esta variable nos permite crear luego un nuevo usuario (linea 63) y pasarle como parametro los datos de los campos a las
+        // variables nuevas creadas (nombre,sueldo,fechaAtla,password);
 
         // aqui se pasan los datos del usuario introducido a las variables.
         while (rs.next()) {
@@ -58,11 +60,14 @@ public class ConsultaUsuario {
             Float sueldo = rs.getFloat("SUELDO");
             String fechaAlta = rs.getString("FECHAALTA");
             String password = rs.getString("PASSWORD");
+            //Byte imagen = rs.getByte("rutaimagen");
 
-            user = new Usuario(numero, nombre, sueldo, fechaAlta, password);
+            user = new Usuario(numero, nombre, sueldo, fechaAlta, password); // Aqui ya creamos el nuevo usuario con los datos que tenemos en los campos de la tabla.
 
             System.out.println("Nombre de usuario: " + nombre + " " + password + " " + sueldo + " " + numero);
-            System.out.println("La contraseña del usuario uno desde consultaUsuario es" + user.getPassword());
+            System.out.println("La contraseña del usuario uno desde consultaUsuario es " + user.getPassword());
+            System.out.println("el numero del usuario uno desde consultaUsuario es " + user.getNumero());
+            
         }
         return user;
     }

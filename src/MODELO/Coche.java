@@ -10,9 +10,9 @@ package MODELO;
  */
 public class Coche {
     
-        private int cod_coche;
-        private String modelo;
-        private String color;
+        static int cod_coche;
+        static String modelo;
+        static String color;
         
         private int codigo_usuario; // FK 
 
@@ -36,7 +36,7 @@ public class Coche {
         this.codigo_usuario = codigo_usuario;
     }
 
-    public int getCod_coche() {
+    public static int getCod_coche() {
         return cod_coche;
     }
 
@@ -44,7 +44,7 @@ public class Coche {
         this.cod_coche = cod_coche;
     }
 
-    public String getModelo() {
+    public static  String getModelo() {
         return modelo;
     }
 
@@ -52,7 +52,7 @@ public class Coche {
         this.modelo = modelo;
     }
 
-    public String getColor() {
+    public static String getColor() {
         return color;
     }
 

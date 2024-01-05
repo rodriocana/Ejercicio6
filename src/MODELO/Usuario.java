@@ -21,12 +21,14 @@ public class Usuario {
     static float sueldo;
     static GregorianCalendar fechaalta;
     static String password;
-    static byte[] imagen;
+    static byte imagen;
 
-    public Usuario(int numero, String nombre, float sueldo, String fechaalta, String password, byte[] imagen) {
+    public Usuario(int numero, String nombre, float sueldo, String fechaalta, String password, byte imagen) {
         this.numero = numero;
         this.nombre = nombre;
         this.sueldo = sueldo;
+        this.password = password;
+        
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             this.fechaalta = new GregorianCalendar();
@@ -34,7 +36,7 @@ public class Usuario {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.password = password;
+        
     }
     
     
@@ -101,11 +103,11 @@ public class Usuario {
         this.password = password;
     }
 
-    public void setImagen(byte[] imagen) {
+    public void setImagen(byte imagen) {
         this.imagen = imagen;
     }
 
-    public byte[] getImagen() {
+    public byte getImagen() {
         return imagen;
     }
 }

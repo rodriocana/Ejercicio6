@@ -6,42 +6,43 @@
 package VISTA;
 
 //import CONTROLADOR.ConsultaDetalle;
+import CONTROLADOR.AccionesSql;
 import CONTROLADOR.JavaConnect;
+import CONTROLADOR.MiExcepcion;
 import MODELO.Usuario;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 
-/**
- *
- * @author bosque
- */
 public class JFramePrincipal extends javax.swing.JFrame {
 
     private JPanelEntrar jpanel;
+    private static ResultSet rs;
+    
 
     public JFramePrincipal() {
         initComponents();
-        // Tomas: Centrar JFrame en la pantalla
+        // Centrar JFrame en la pantalla
         java.awt.Dimension dim = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
-        // Tomas: creo aquí los paneles, así cada uno siempre será el mismo.
+        // creo aquí los paneles, así cada uno siempre será el mismo.
         jPanelInicio = new JPanelInicio();
 
         //para INICIAR LA BASE DE DATOS;
-        
-        
-        JavaConnect.connectdb();
+        try {
+            JavaConnect.connectdb();
+        } catch (MiExcepcion e) {  // aqui se maneja la excepcion MiExcepcion, y si hay un error nos saltará el mensaje especifico.
+            System.out.println("Error código " + e.getCodigo() + ": " + e.getMessage());
+
+        }
 
         DetalleItem.setVisible(false);
         ResumenItem.setVisible(false);
         VisualizarMenu.setVisible(false);
+        jmenuAñadirEliminar.setVisible(false);
 
         jPanelEntrar = new JPanelEntrar(this);
         this.cambiarPanel(jPanelInicio);
-        
-        
-        
-        
 
     }
 
@@ -64,6 +65,10 @@ public class JFramePrincipal extends javax.swing.JFrame {
         VisualizarMenu = new javax.swing.JMenu();
         DetalleItem = new javax.swing.JMenuItem();
         ResumenItem = new javax.swing.JMenuItem();
+        jmenuAñadirEliminar = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         jMenuAcercaDe = new javax.swing.JMenu();
         jMenuItemAutor = new javax.swing.JMenuItem();
 
@@ -106,6 +111,24 @@ public class JFramePrincipal extends javax.swing.JFrame {
 
         jMenuBar1.add(VisualizarMenu);
 
+        jmenuAñadirEliminar.setText("Añadir/Modificar/Eliminar");
+
+        jMenuItem1.setText("Nuevo coche");
+        jmenuAñadirEliminar.add(jMenuItem1);
+
+        jMenuItem3.setText("Modificar coche");
+        jmenuAñadirEliminar.add(jMenuItem3);
+
+        jMenuItem2.setText("Eliminar coche");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jmenuAñadirEliminar.add(jMenuItem2);
+
+        jMenuBar1.add(jmenuAñadirEliminar);
+
         jMenuAcercaDe.setText("Acerca de");
 
         jMenuItemAutor.setText("Autor");
@@ -134,14 +157,15 @@ public class JFramePrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // esta funcion cambia al panel entrar cuando pulsemos validar y despues entrar.
     private void jMenuItemEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemEntrarActionPerformed
         // TODO add your handling code here:
         // Tomas: cargo el panel. Se podría crear aquí, entonces siempre seria nuevo y no habría que declararlo como atributo.
-        this.cambiarPanel(jPanelEntrar);
+       this.cambiarPanel(jPanelEntrar);
 
 
     }//GEN-LAST:event_jMenuItemEntrarActionPerformed
-
+ //esta funcion muestra el panel AUTOR
     private void jMenuItemAutorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAutorActionPerformed
         // TODO add your handling code here:
 
@@ -153,19 +177,31 @@ public class JFramePrincipal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jMenuItemAutorActionPerformed
 
+    //esta funcion muestra el panel DETALLE
     private void DetalleItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DetalleItemActionPerformed
 
         jPanelDetalle = new PanelDetalle(jpanel);
+        jmenuAñadirEliminar.setVisible(true);
         this.cambiarPanel(jPanelDetalle);
 
     }//GEN-LAST:event_DetalleItemActionPerformed
 
+    
+    // esta funcion muestra el panel RESUMEN
     private void ResumenItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResumenItemActionPerformed
-       
+
         JPanelResumen JPanelResumen = new JPanelResumen();
         this.cambiarPanel(JPanelResumen);
-        
+
     }//GEN-LAST:event_ResumenItemActionPerformed
+
+    
+    //ELIMINAR
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        
+        
+        rs = AccionesSql.EliminarCoche();
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void cambiarPanel(javax.swing.JPanel panel) {
         this.setContentPane(panel);
@@ -192,10 +228,14 @@ public class JFramePrincipal extends javax.swing.JFrame {
     private javax.swing.JMenu VisualizarMenu;
     private javax.swing.JMenu jMenuAcercaDe;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItemAutor;
     private javax.swing.JMenuItem jMenuItemEntrar;
     private javax.swing.JMenuItem jMenuItemSalir;
     private javax.swing.JMenu jMenuValidar;
+    private javax.swing.JMenu jmenuAñadirEliminar;
     // End of variables declaration//GEN-END:variables
 
     // Tomas: atributos a mano (paneles)

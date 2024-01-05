@@ -13,7 +13,7 @@ public class MError {
     
     private static String mensaje;
     
-    public static String getMensaje(int cod) {
+    public static String getMensaje(int cod) {  // funcion que devuelve el mensaje del codigo especificado.
         mensaje = "Error "+ cod + ": ";
         switch(cod) {
             case 101:

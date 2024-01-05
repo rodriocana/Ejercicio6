@@ -5,7 +5,9 @@
 package VISTA;
 
 //import CONTROLADOR.ConsultaDetalle;
+import CONTROLADOR.ConsultaDetalle;
 import CONTROLADOR.JavaConnect;
+import MODELO.Coche;
 import MODELO.Usuario;
 import java.awt.BorderLayout;
 import java.sql.ResultSet;
@@ -13,6 +15,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +34,7 @@ public class PanelDetalle extends javax.swing.JPanel {
     private final JPanelEntrar jframe;
 
     GregorianCalendar fecha;
-    ResultSet rs;
+    ResultSet rs;  // declarada para pasarle el return de la funcion creada en el controlador consultaDetalle.
     ResultSet rsAux;
     int numfilas = 0;
 
@@ -39,27 +42,15 @@ public class PanelDetalle extends javax.swing.JPanel {
         initComponents();
 
         this.jframe = frame;
+        Usuario user = null;
 
-        //ConsultaDetalle detalle = new ConsultaDetalle(); // aqui creamos una instancia de la clase ControladorDetalle
-        //detalle.DatoUsuario();  // aqui llamamos al statement 
-        DatoUsuario();
+        ConsultaDetalle detalle = new ConsultaDetalle(); // aqui creamos una instancia de la clase ControladorDetalle
+        rs = detalle.getResultSet(user);  // aqui llamamos al statement pasandole el return de la funcion DatoUsuario a la variable rs y ya nos permite recorrer
+        // las filas de la tabla del usuario introducido en el login.
 
-        mostrarPrimerRegistro();
-
-    }
-
-    public void DatoUsuario() {
-
-        try {
-
-            Statement stmt = JavaConnect.getConnection().createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = stmt.executeQuery("SELECT * FROM coche WHERE cod_usuario = " + Usuario.getNumero() + "");
-            ResultSetMetaData rsmd = rs.getMetaData();
-
-        } catch (SQLException ex) {
-
-            Logger.getLogger(JPanelEntrar.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        ConsultaDetalle.iniciarResultSet(user); // aqui inicio el rs del usuario que lo recojo de la clase consultaDetalle.
+        
+        mostrarPrimerRegistro(user);
 
     }
 
@@ -104,19 +95,42 @@ public class PanelDetalle extends javax.swing.JPanel {
         }
     }
 
-    public void mostrarPrimerRegistro() {
-
-        lblUsuario.setText(Usuario.getNombre());
+    public void mostrarPrimerRegistro(Usuario user) {
+        
+        ArrayList<Coche> cochesLista = new ArrayList<>();
 
         try {
-
-            if (rs != null && rs.next()) {
-                jlabelNumeroActual.setText(rs.getRow() + " / " + numfilas);
-                textFieldModelo.setText(rs.getString("Modelo"));
-                textFieldColor.setText(rs.getString("color"));
-
-            } else {
-                JOptionPane.showMessageDialog(this, "No hay más registros.");
+            
+            lblUsuario.setText(Usuario.getNombre());
+//            
+            ConsultaDetalle.inicial(user);  // para usar los coches como objetos.
+            
+            System.out.println("Modelo objeto coche " + Coche.getModelo());
+            System.out.println("Color objeto coche " + Coche.getColor());
+            
+            cochesLista = ConsultaDetalle.listaCoches(user);  // aqui le paso el return listacoches de la clase ConsultaDetalle a la variable cochesLista
+            
+            System.out.println("Tamaño de la lista " + cochesLista.size());
+            
+           
+            
+            try {
+                
+                if (rs != null && rs.next()) {
+                    /*jlabelNumeroActual.setText(rs.getRow() + " / " + numfilas);
+                    textFieldModelo.setText(rs.getString("Modelo"));
+                    textFieldColor.setText(rs.getString("color"));*/
+                    
+                    // asi seria usando un objeto de coche
+                    jlabelNumeroActual.setText(rs.getRow() + " / " + numfilas);
+                    textFieldModelo.setText(Coche.getModelo());
+                    textFieldColor.setText(Coche.getColor());
+                    
+                } else {
+                    JOptionPane.showMessageDialog(this, "No hay más registros.");
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
             }
         } catch (SQLException ex) {
             Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
@@ -171,6 +185,7 @@ public class PanelDetalle extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         lblUsuario = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         textFieldColor.setText("jTextField1");
 
@@ -221,6 +236,8 @@ public class PanelDetalle extends javax.swing.JPanel {
 
         lblUsuario.setText("Usu");
 
+        jLabel4.setIcon(new javax.swing.ImageIcon("C:\\Users\\Rodri\\Documents\\GRADO-SUPERIOR-2024\\PSP\\p06_java_final\\fotos\\1001.jpg")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -228,6 +245,22 @@ public class PanelDetalle extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGap(99, 99, 99)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(19, 19, 19)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel1)
+                                .addComponent(jLabel2)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(lblUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(71, 71, 71)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(textFieldModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(textFieldColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnPrimero)
@@ -241,24 +274,10 @@ public class PanelDetalle extends javax.swing.JPanel {
                                     .addComponent(btnUltimo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jlabelNumeroActual, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(19, 19, 19)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel1)
-                                .addComponent(jLabel2)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(71, 71, 71)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(textFieldColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(textFieldModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(lblUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(356, Short.MAX_VALUE))
+                                .addComponent(jlabelNumeroActual, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(102, 102, 102))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -267,35 +286,44 @@ public class PanelDetalle extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(lblUsuario))
-                .addGap(59, 59, 59)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textFieldModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textFieldColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addGap(48, 48, 48)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblNumero)
-                    .addComponent(jlabelNumeroActual))
-                .addGap(31, 31, 31)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnAnterior)
-                    .addComponent(btnSiguiente))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnPrimero)
-                    .addComponent(btnUltimo))
-                .addContainerGap(147, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(59, 59, 59)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(textFieldModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(textFieldColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2))
+                        .addGap(48, 48, 48)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblNumero)
+                            .addComponent(jlabelNumeroActual))
+                        .addGap(37, 37, 37)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnAnterior)
+                            .addComponent(btnSiguiente))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnPrimero)
+                            .addComponent(btnUltimo)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(141, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSiguienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSiguienteActionPerformed
 
+        Usuario user = null;
+        
         try {
 
             rs.next(); //pasa a la siguiente tupla
+            
+            //ConsultaDetalle.Siguiente(user); para usar los coches como objeto
             mostrarDatos();
 
         } catch (SQLException ex) {
@@ -306,10 +334,12 @@ public class PanelDetalle extends javax.swing.JPanel {
 
     private void btnAnteriorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnteriorActionPerformed
 
+        Usuario user = null;
         try {
             if (!rs.isFirst()) {
 
-                rs.previous();
+                 rs.previous();
+                //ConsultaDetalle.Atras(user);  para usar los coches como objetos
                 mostrarDatos();
 
             }
@@ -355,6 +385,7 @@ public class PanelDetalle extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jlabelNumeroActual;
     private javax.swing.JLabel lblNumero;
     private javax.swing.JLabel lblUsuario;

@@ -8,6 +8,10 @@ package VISTA;
 import CONTROLADOR.ConsultaUsuario;
 import CONTROLADOR.JavaConnect;
 import MODELO.Usuario;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.*;
 import java.util.GregorianCalendar;
@@ -44,7 +48,7 @@ public class JPanelEntrar extends javax.swing.JPanel {
 
     /*public byte[] foto()
     {
-        String rutaImagen = "C:\\Users\\sleza\\OneDrive\\StevenDrive\\DAM\\Temario 2 DAM\\Programacion Servicios y Procesos (HLC)\\p05_BDs_derby\\fotos\\1002.jpg";
+        String rutaImagen = "C:/Users/Rodri/Documents/GRADO-SUPERIOR-2024/PSP/p06_java_final/fotos/1005.jpg";
         
         File imagenFile = new File(rutaImagen);
         imagenBytes = new byte[(int) imagenFile.length()];
@@ -66,9 +70,10 @@ public class JPanelEntrar extends javax.swing.JPanel {
         usuario = jTextFieldUsuario.getText();
         contraseña = jPasswordField1.getText();
 
-        Usuario u1;
+        Usuario u1;  // declaramos un usuario llamado u1;
 
-        u1 = ConsultaUsuario.getUsuario(usuario, contraseña);
+        u1 = ConsultaUsuario.getUsuario(usuario, contraseña);  // le pasamos a u1 los datos de nombre y contraseña que nos da 
+        //el preparedStatement del controlador (lo que devuelve la consulta sql)
 
         if (u1 == null) {  // entra aqui siempre no se por que es null
 
@@ -90,6 +95,7 @@ public class JPanelEntrar extends javax.swing.JPanel {
              
             jTextArea1.setText("Verificacion correcta!!");
             ((JFramePrincipal) JFramePrincipal1).VisibilizarMenu();
+            
         }else{
             jTextFieldUsuario.setText(" ");
             jPasswordField1.setText(" ");

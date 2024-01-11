@@ -12,13 +12,16 @@ import CONTROLADOR.MiExcepcion;
 import MODELO.Usuario;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JFramePrincipal extends javax.swing.JFrame {
 
     private JPanelEntrar jpanel;
     private static ResultSet rs;
-    
+    private PanelDetalle panelDetalle;
 
     public JFramePrincipal() {
         initComponents();
@@ -27,6 +30,8 @@ public class JFramePrincipal extends javax.swing.JFrame {
         this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         // creo aquí los paneles, así cada uno siempre será el mismo.
         jPanelInicio = new JPanelInicio();
+        
+        
 
         //para INICIAR LA BASE DE DATOS;
         try {
@@ -114,6 +119,11 @@ public class JFramePrincipal extends javax.swing.JFrame {
         jmenuAñadirEliminar.setText("Añadir/Modificar/Eliminar");
 
         jMenuItem1.setText("Nuevo coche");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jmenuAñadirEliminar.add(jMenuItem1);
 
         jMenuItem3.setText("Modificar coche");
@@ -161,11 +171,11 @@ public class JFramePrincipal extends javax.swing.JFrame {
     private void jMenuItemEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemEntrarActionPerformed
         // TODO add your handling code here:
         // Tomas: cargo el panel. Se podría crear aquí, entonces siempre seria nuevo y no habría que declararlo como atributo.
-       this.cambiarPanel(jPanelEntrar);
+        this.cambiarPanel(jPanelEntrar);
 
 
     }//GEN-LAST:event_jMenuItemEntrarActionPerformed
- //esta funcion muestra el panel AUTOR
+    //esta funcion muestra el panel AUTOR
     private void jMenuItemAutorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAutorActionPerformed
         // TODO add your handling code here:
 
@@ -180,13 +190,12 @@ public class JFramePrincipal extends javax.swing.JFrame {
     //esta funcion muestra el panel DETALLE
     private void DetalleItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DetalleItemActionPerformed
 
-        jPanelDetalle = new PanelDetalle(jpanel);
+        jPanelDetalle = new PanelDetalle(jpanel);  // aqui creo el objeto jPanelDetalle para poder entrar en sus metodos de clase, donde entro al darle a nuevo coche.
         jmenuAñadirEliminar.setVisible(true);
         this.cambiarPanel(jPanelDetalle);
 
     }//GEN-LAST:event_DetalleItemActionPerformed
 
-    
     // esta funcion muestra el panel RESUMEN
     private void ResumenItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ResumenItemActionPerformed
 
@@ -195,13 +204,19 @@ public class JFramePrincipal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_ResumenItemActionPerformed
 
-    
     //ELIMINAR
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+
         
-        
-        rs = AccionesSql.EliminarCoche();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    
+    // NUEVO COCHE
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+       
+       jPanelDetalle.VisibilizarBotonesNuevoCoche();
+        
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void cambiarPanel(javax.swing.JPanel panel) {
         this.setContentPane(panel);

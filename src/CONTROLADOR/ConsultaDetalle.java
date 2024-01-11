@@ -76,7 +76,7 @@ public class ConsultaDetalle {
 
         Coche coche = new Coche();
 
-        if (!rs.isAfterLast()) {
+        if (rs != null && rs.next()) {
             coche.setCod_coche(rs.getInt("cod_coche"));
             coche.setCodigo_usuario(rs.getInt("cod_usuario"));
             coche.setColor(rs.getString("COLOR"));
@@ -85,19 +85,22 @@ public class ConsultaDetalle {
         }
 
         return coche;
+
     }
 
     public static Coche Atras(Usuario usuario) throws SQLException {
 
         Coche coche = new Coche();
 
-        if (!rs.isAfterLast()) {
+       /* if (!rs.isAfterLast()) {
 
-            coche.setCod_coche(rs.getInt("cod_coche"));
-            coche.setCodigo_usuario(rs.getInt("cod_usuario"));
-            coche.setColor(rs.getString("COLOR"));
-            coche.setModelo(rs.getString("MODELO"));
-        }
+        }*/
+       
+        rs.previous();
+        coche.setCod_coche(rs.getInt("cod_coche"));
+        coche.setCodigo_usuario(rs.getInt("cod_usuario"));
+        coche.setColor(rs.getString("COLOR"));
+        coche.setModelo(rs.getString("MODELO"));
 
         return coche;
 
@@ -123,7 +126,10 @@ public class ConsultaDetalle {
     }
 
     public static ArrayList<Coche> listaCoches(Usuario user) throws SQLException {
-        ResultSet rs = getResultSet(user);  // Obtener el ResultSet desde la función anterior
+
+        ResultSet rs = getResultSet(user);  // Obtener el ResultSet desde la función anterior para saber cuantos coches en este caso tiene cada usuario para 
+        // luego añadir esa cantidad al arraylist listaCoches.
+
         ArrayList<Coche> listaCoches = new ArrayList<>();
 
         if (rs != null) {

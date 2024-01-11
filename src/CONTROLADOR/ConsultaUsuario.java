@@ -60,9 +60,11 @@ public class ConsultaUsuario {
             Float sueldo = rs.getFloat("SUELDO");
             String fechaAlta = rs.getString("FECHAALTA");
             String password = rs.getString("PASSWORD");
+            String dni = rs.getString("NIF");
+            String imagen = rs.getString("foto");
             //Byte imagen = rs.getByte("rutaimagen");
 
-            user = new Usuario(numero, nombre, sueldo, fechaAlta, password); // Aqui ya creamos el nuevo usuario con los datos que tenemos en los campos de la tabla.
+            user = new Usuario(numero, nombre, sueldo, fechaAlta, dni, password, imagen); // Aqui ya creamos el nuevo usuario con los datos que tenemos en los campos de la tabla.
 
             System.out.println("Nombre de usuario: " + nombre + " " + password + " " + sueldo + " " + numero);
             System.out.println("La contraseña del usuario uno desde consultaUsuario es " + user.getPassword());
@@ -78,8 +80,9 @@ public class ConsultaUsuario {
         
         Statement st = conexion.createStatement();
 
-        ResultSet rs = st.executeQuery("Select IDUSUARIO, USUARIO, CONTRASENIA, FECHAINGRESO, FOTO from USUARIO");
+        ResultSet rs = st.executeQuery("Select IDUSUARIO, USUARIO, CONTRASENIA, FECHAINGRESO, NIF FOTO from USUARIO");
         Usuario user;
+        
         while (rs.next()) {
 
             int numero = rs.getInt("NUMERO");
@@ -87,7 +90,9 @@ public class ConsultaUsuario {
             Float sueldo = rs.getFloat("SUELDO");
             String fechaAlta = rs.getString("FECHAALTA");
             String password = rs.getString("PASSWORD");
-            user = new Usuario(numero, nombre, sueldo, fechaAlta, password);
+            String DNI = rs.getString("NIF");
+            String imagen = rs.getString("foto");
+            user = new Usuario(numero, nombre, sueldo, fechaAlta, password, DNI, imagen);
             listaUsuarios.add(user);
         }
         return listaUsuarios;

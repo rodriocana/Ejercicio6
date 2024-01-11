@@ -21,14 +21,17 @@ public class Usuario {
     static float sueldo;
     static GregorianCalendar fechaalta;
     static String password;
-    static byte imagen;
+    static String DNI;
+    static String imagen;
 
-    public Usuario(int numero, String nombre, float sueldo, String fechaalta, String password, byte imagen) {
+    public Usuario(int numero, String nombre, float sueldo, String fechaalta, String password, String DNI, String imagen) {
         this.numero = numero;
         this.nombre = nombre;
         this.sueldo = sueldo;
         this.password = password;
-        
+        this.DNI = DNI;
+        this.imagen = imagen;
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             this.fechaalta = new GregorianCalendar();
@@ -36,46 +39,28 @@ public class Usuario {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
-    
-    
-    //constructor sin imagen
-    public Usuario(int numero, String nombre, float sueldo, String fechaalta, String password) {
-        this.numero = numero;
-        this.nombre = nombre;
-        this.sueldo = sueldo;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            this.fechaalta = new GregorianCalendar();
-            this.fechaalta.setTime(dateFormat.parse(fechaalta));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        this.password = password;
-    }
-    
+
     //constructor vacio
-    public Usuario(){
-        
-        
-        
+    public Usuario() {
+
     }
 
     static public int getNumero() {
         return numero;
     }
 
-    public void setNumero(int numero) {
-        this.numero = numero;
+    static public void setNumero(int numero) {   // si falla algo, quitar los static de los setter
+        Usuario.numero = numero;
     }
 
     static public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    static public void setNombre(String nombre) {
+        Usuario.nombre = nombre;
     }
 
     static public float getSueldo() {
@@ -103,11 +88,11 @@ public class Usuario {
         this.password = password;
     }
 
-    public void setImagen(byte imagen) {
+    public void setImagen(String imagen) {
         this.imagen = imagen;
     }
 
-    public byte getImagen() {
+    public String getImagen() {
         return imagen;
     }
 }

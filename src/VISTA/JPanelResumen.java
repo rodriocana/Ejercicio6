@@ -340,14 +340,30 @@ public class JPanelResumen extends javax.swing.JPanel {
     private void btnAnteriorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnteriorActionPerformed
 
         Usuario usuario = null;
-        try {
-
+       try {
             usuario = ConsultaResumen.Atras();
-            mostrarDatos();
-
         } catch (SQLException ex) {
             Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        try {
+
+           if (ConsultaResumen.primerUsuario()) {
+
+                btnPrimero.setEnabled(false);
+                btnAnterior.setEnabled(false); // Habilita el botón "Anterior" ya que hay al menos un resultado
+            } else {
+                // No hay resultados, desactiva el botón "Anterior"
+                btnSiguiente.setEnabled(true);
+                btnUltimo.setEnabled(true);
+                btnPrimero.setEnabled(true);
+
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        mostrarDatos();
 
         /*try {
             rs.previous(); //pasa a la anterior tupla
@@ -374,14 +390,34 @@ public class JPanelResumen extends javax.swing.JPanel {
         Usuario usuario = null;
 
         try {
-
-            usuario = ConsultaResumen.Siguiente(); // para usar los coches objeto
-
-            mostrarDatos();
-
+            usuario = ConsultaResumen.Siguiente();
         } catch (SQLException ex) {
             Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        try {
+
+            if (ConsultaResumen.ultimoUsuario()) {
+
+                //añadirTablasRutas(user);
+                // Hay un coche siguiente, procesa los datos y habilita los botones correspondientes
+                btnSiguiente.setEnabled(false);
+                btnAnterior.setEnabled(true);
+                btnPrimero.setEnabled(true);
+                btnUltimo.setEnabled(false);
+            } else {
+                // No hay más coches siguientes, desactiva el botón "Siguiente" y "Último"
+
+                btnUltimo.setEnabled(true);
+                btnAnterior.setEnabled(true);
+                btnPrimero.setEnabled(true);
+
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        mostrarDatos();
 
         /*Usuario usuario = null;
         try {

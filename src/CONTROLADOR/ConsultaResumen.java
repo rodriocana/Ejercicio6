@@ -113,5 +113,31 @@ public class ConsultaResumen {
         return usuario;
 
     }
+    
+    public static boolean ultimoUsuario() throws SQLException {
+
+        if (rs.isLast()) {
+
+            return true;
+
+        } else {
+
+            return false;
+        }
+
+    }
+
+    public static boolean primerUsuario() throws SQLException {
+
+        if (rs.isFirst()) {
+
+            return true;
+
+        } else {
+
+            return false;
+        }
+
+    }
 
 }

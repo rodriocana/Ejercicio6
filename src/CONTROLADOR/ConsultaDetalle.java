@@ -188,6 +188,49 @@ public class ConsultaDetalle {
         return null;
     }
 
+    public static Ruta inicial() throws SQLException {
+
+        Ruta ruta = new Ruta();
+
+        rs.first();
+        Ruta.setCod_ruta(rs.getInt("cod_ruta"));
+        Ruta.setDestino(rs.getString("destino"));
+        Ruta.setOrigen(rs.getString("origen"));
+        Ruta.setDistancia_km(rs.getInt("distancia_km"));
+
+        return ruta;
+    }
+
+    public static Ruta Siguiente() throws SQLException {
+
+        Ruta ruta = new Ruta();
+
+        if (rs != null && rs.next()) {
+            Ruta.setCod_ruta(rs.getInt("cod_ruta"));
+            Ruta.setDestino(rs.getString("destino"));
+            Ruta.setOrigen(rs.getString("origen"));
+            Ruta.setDistancia_km(rs.getInt("distancia_km"));
+
+        }
+
+        return ruta;
+
+    }
+
+    public static Ruta Atras() throws SQLException {
+
+        Ruta ruta = new Ruta();
+
+        rs.previous();
+        Ruta.setCod_ruta(rs.getInt("cod_ruta"));
+        Ruta.setDestino(rs.getString("destino"));
+        Ruta.setOrigen(rs.getString("origen"));
+        Ruta.setDistancia_km(rs.getInt("distancia_km"));
+
+        return ruta;
+
+    }
+
     public static ArrayList<Ruta> listaRuta(Usuario user) throws SQLException {
 
         ResultSet rs = getResultSetRutas(user);  // Obtener el ResultSet desde la función anterior para saber cuantos coches en este caso tiene cada usuario para 
@@ -208,8 +251,6 @@ public class ConsultaDetalle {
 
         return listaRutas;
     }
-    
-    
 
     private static int obtenerCodCocheUsuario(Usuario user) {
         try {

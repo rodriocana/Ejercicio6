@@ -230,21 +230,27 @@ public class JFramePrincipal extends javax.swing.JFrame {
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
 
         try {
-            Usuario user = null;
-            //jPanelDetalle.VisibilizarBotonesNuevoCoche();
-            AccionesSql.borrarCoche(user);  // esto funciona perfectamente
-            JavaConnect.connectdb();
-            rs = ConsultaDetalle.getResultSet(user);
-            jPanelDetalle.mostrarDatos();
-            try {
+        Usuario user = null;
 
-                jPanelDetalle.añadirTablasCoches(user);  // hace falta borrar la antigua y enseñar la 
-            } catch (SQLException ex) {
-                Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } catch (MiExcepcion ex) {
+        // Crear una instancia de AccionesSql
+        AccionesSql accionesSql = new AccionesSql(jPanelDetalle);
+
+        // Llamar al método no estático borrarCoche
+        accionesSql.borrarCoche(user);
+
+        JavaConnect.connectdb();
+        rs = ConsultaDetalle.getResultSet(user);
+        jPanelDetalle.mostrarDatos();
+        
+        try {
+            jPanelDetalle.añadirTablasCoches(user);
+        } catch (SQLException ex) {
             Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
+    } catch (MiExcepcion ex) {
+        Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     // NUEVO COCHE
@@ -252,13 +258,14 @@ public class JFramePrincipal extends javax.swing.JFrame {
 
         try {
             Usuario user = null;
-
-            AccionesSql.insertarCoche(user);  // esto funciona perfectamente
+            AccionesSql accionesSql = new AccionesSql(jPanelDetalle);
+            accionesSql.insertarCoche(user);  // esto funciona perfectamente
+            
             JavaConnect.connectdb();
             rs = ConsultaDetalle.getResultSet(user);
             jPanelDetalle.mostrarDatos();
             try {
-                jPanelDetalle.añadirTablasCoches(user);  // hace falta borrar la antigua y enseñar la 
+                jPanelDetalle.añadirTablasCoches(user);  // Aqui se actualiza la tabla borrando la que habia antes y mostrando una nueva.
             } catch (SQLException ex) {
                 Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -276,11 +283,27 @@ public class JFramePrincipal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jMenuItemSalirActionPerformed
 
+    // MODIFICAR COCHE
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
 
-        Usuario usuario = null;
+        try {
+            Usuario user = null;
+            
+            AccionesSql accionesSql = new AccionesSql(jPanelDetalle);
+            accionesSql.ActualizarCoche(user);  // esto funciona perfectamente
 
-        AccionesSql.ActualizarCoche(usuario);  // esto funciona perfectamente
+           
+            JavaConnect.connectdb();
+            rs = ConsultaDetalle.getResultSet(user);
+            jPanelDetalle.mostrarDatos();
+            try {
+                jPanelDetalle.añadirTablasCoches(user);  // Aqui se actualiza la tabla borrando la que habia antes y mostrando una nueva.
+            } catch (SQLException ex) {
+                Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (MiExcepcion ex) {
+            Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 

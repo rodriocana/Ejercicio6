@@ -54,14 +54,12 @@ public final class PanelDetalle extends javax.swing.JPanel {
 
         this.jframe = frame;
 
-        ConsultaDetalle detalle = new ConsultaDetalle(); // aqui creamos una instancia de la clase ControladorDetalle
-
         rs = detalle.getResultSet(user);  // aqui llamamos al statement pasandole el return de la funcion DatoUsuario a la variable rs y ya nos permite recorrer
         // las filas de la tabla del usuario introducido en el login.
 
         mostrarPrimerRegistro(user);
         añadirTablasCoches(user);
-        añadirTablasRutas(user);
+        //añadirTablasRutas(user);
 
         ocultarBotonesNuevoCoche();
 
@@ -78,6 +76,13 @@ public final class PanelDetalle extends javax.swing.JPanel {
         }
     }
 
+    public int recogerCodCoche() {
+
+        int cod_coche = Integer.parseInt(TextFieldCodCoche.getText());
+
+        return cod_coche;
+    }
+
     public void mostrarDatos() //metodo para mostrar datos
     {
 
@@ -85,22 +90,21 @@ public final class PanelDetalle extends javax.swing.JPanel {
         TextFieldCodCoche.setText(String.valueOf(Coche.getCod_coche()));
         textFieldModelo.setText(Coche.getModelo());
         textFieldColor.setText(Coche.getColor());
-    }
-
-    public void RecogerDatosModelo(int codigo_coche, String modelo, String color) {
-
-        codigo_coche = Integer.parseInt(TextFieldCodCoche.getText());
-        modelo = textFieldModelo.getText();
-        color = textFieldColor.getText();
 
     }
 
-    public int RecogerDatosCodigo_coche() {
+    public String recogerModeloCoche() { 
 
-        int Codigo_coche = Integer.parseInt(TextFieldCodCoche.getText());
+        String modelo = textFieldModelo.getText();
 
-        return Codigo_coche;
+        return modelo;
+    }
 
+    public String recogerColorCoche() {
+
+        String color = textFieldColor.getText();
+
+        return color;
     }
 
 //    
@@ -156,24 +160,32 @@ public final class PanelDetalle extends javax.swing.JPanel {
 
     public void añadirTablasRutas(Usuario user) throws SQLException {
         modelo = (DefaultTableModel) Tabla1.getModel();
-        Ruta ruta;
+        ArrayList<Ruta> rutasLista = ConsultaDetalle.listaRuta(user);
 
-        //rs = ConsultaDetalle.getResultSetRutas(user);
-        // Utiliza un iterador para recorrer la lista de rutas
-        Iterator<Ruta> iterator = listaRutas.iterator();
+        try {
+            rs = ConsultaDetalle.getResultSetRutas(user);
+            ConsultaDetalle.Atras();  // Asegúrate de que esta llamada no afecte la posición del cursor
 
-        System.out.println("Tamaño lista " + listaRutas.size());
+            System.out.println("Tamaño lista " + listaRutas.size());
 
-        // Mientras haya rutas en la lista, agrega filas a la tabla
-        while (iterator.hasNext()) {
-            //ConsultaDetalle.Atras(user); // Revisa si esta línea es necesaria
-            ruta = iterator.next();
-            modelo.addRow(new String[]{
-                String.valueOf(ruta.getCod_ruta()),
-                ruta.getDestino(),
-                ruta.getOrigen(),
-                String.valueOf(ruta.getDistancia_km())
-            });
+            // Mientras haya rutas en el ResultSet, agrega filas a la tabla
+            while (rs.next()) {
+                Ruta ruta = new Ruta(); // Crea un objeto Ruta y configúralo con los datos del ResultSet
+                ruta.setCod_ruta(rs.getInt("cod_ruta"));
+                ruta.setDestino(rs.getString("destino"));
+                ruta.setOrigen(rs.getString("origen"));
+                ruta.setDistancia_km(rs.getInt("distancia_km"));
+
+                modelo.addRow(new String[]{
+                    String.valueOf(ruta.getCod_ruta()),
+                    ruta.getDestino(),
+                    ruta.getOrigen(),
+                    String.valueOf(ruta.getDistancia_km())
+                });
+            }
+        } catch (SQLException e) {
+            // Manejar la excepción (imprimir el rastreo de la pila o registrarla)
+            e.printStackTrace();
         }
     }
 
@@ -532,6 +544,8 @@ public final class PanelDetalle extends javax.swing.JPanel {
     private void btnSiguienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSiguienteActionPerformed
 
         contador++;
+
+        recogerCodCoche();
 
         Coche coche = null;
 

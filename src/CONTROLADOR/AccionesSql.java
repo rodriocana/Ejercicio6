@@ -36,50 +36,23 @@ public class AccionesSql {
 
     private static ResultSet rs;
 
-    /*public static ResultSet EliminarCoche() {
-
-        String modelo;
-
-        System.out.println("Que modelo desea borrar:");
-        modelo = sc.nextLine();
-
-        try {
-
-            Statement stmt = JavaConnect.getConnection().createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = stmt.executeQuery("Delete FROM coche WHERE cod_usuario = " + Usuario.getNumero() + " modelo = " + modelo);   // esta consulta va a eliminar el coche que le pasemos el codigo.
-            ResultSetMetaData rsmd = rs.getMetaData();
-
-        } catch (SQLException ex) {
-
-            Logger.getLogger(JPanelEntrar.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return rs;  // este return pasa a la variable rs creada en la vistaDetalle
-
-    }*/
-    public static void insertarCoche(Usuario usuario) {
+    public void insertarCoche(Usuario usuario) {
 
         PanelDetalle detalle = null;
         int codigo_coche = 120;
-        String color = "azul";
-        String modelo = "ferrari";
+        //String color = "azul";
+        //String modelo = "ferrari";
 
-        /*int codigo_coche = 0;
-        String color = null;
-        String modelo = null;
-
-        detalle.RecogerDatosModelo(codigo_coche, color, modelo);*/
-        
-       
-        
-        
+        int cod_coche = panelDetalle.recogerCodCoche();
+        String modelo = panelDetalle.recogerModeloCoche();
+        String color = panelDetalle.recogerColorCoche();
 
         String sql = "INSERT INTO coche (cod_coche, COLOR, MODELO, cod_usuario) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = JavaConnect.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, codigo_coche);
+            preparedStatement.setInt(1, cod_coche);
             preparedStatement.setString(2, color);
             preparedStatement.setString(3, modelo);
             preparedStatement.setInt(4, Usuario.getNumero());
@@ -97,9 +70,11 @@ public class AccionesSql {
         }
     }
 
-    public static void borrarCoche(Usuario usuario) {
+    public void borrarCoche(Usuario usuario) {
 
-        int cod_coche = 120;
+        int cod_coche = panelDetalle.recogerCodCoche();
+
+        //int cod_coche = 120;
         String sql = "DELETE FROM coche WHERE cod_usuario = ? AND cod_coche = ?";
 
         try (Connection connection = JavaConnect.getConnection();
@@ -121,13 +96,17 @@ public class AccionesSql {
         }
     }
 
-    public static void ActualizarCoche(Usuario usuario) {
+    public void ActualizarCoche(Usuario usuario) {
 
-        String color = "Rojo";
-        String modelo = "Lamborghini";
-        int cod_coche = 120;
+        //String color = "Rojo";
+       // String modelo = "Lamborghini";
+        //int cod_coche = 120;
+        
+        int cod_coche = panelDetalle.recogerCodCoche();
+        String modelo = panelDetalle.recogerModeloCoche();
+        String color = panelDetalle.recogerColorCoche();
 
-        String sql = "UPDATE coche SET COLOR = ?, MODELO = ?, WHERE cod_coche = ?";
+        String sql = "UPDATE coche SET COLOR = ?, MODELO = ? WHERE cod_coche = ?";
 
         try (Connection connection = JavaConnect.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

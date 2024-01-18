@@ -8,8 +8,10 @@ package VISTA;
 import CONTROLADOR.ConsultaDetalle;
 import CONTROLADOR.JavaConnect;
 import MODELO.Coche;
+import MODELO.Ruta;
 import MODELO.Usuario;
 import java.awt.BorderLayout;
+import java.awt.List;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -17,6 +19,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -34,30 +37,33 @@ public final class PanelDetalle extends javax.swing.JPanel {
 
     private final JPanelEntrar jframe;
 
+    static int contador = 1;
+    Usuario user = null;
     GregorianCalendar fecha;
     DefaultTableModel modelo;  // el JPANEL
     ResultSet rs;  // declarada para pasarle el return de la funcion creada en el controlador consultaDetalle.
+    ArrayList<Coche> listaCoche = ConsultaDetalle.listaCoches(user);
+    ArrayList<Ruta> listaRutas = ConsultaDetalle.listaRuta(user);
+
+    ConsultaDetalle detalle = new ConsultaDetalle(); // aqui creamos una instancia de la clase ControladorDetalle
 
     int numfilas = 0;
 
-    public PanelDetalle(JPanelEntrar frame) {
+    public PanelDetalle(JPanelEntrar frame) throws SQLException {
         initComponents();
 
         this.jframe = frame;
 
-        Usuario user = null;
         ConsultaDetalle detalle = new ConsultaDetalle(); // aqui creamos una instancia de la clase ControladorDetalle
+
         rs = detalle.getResultSet(user);  // aqui llamamos al statement pasandole el return de la funcion DatoUsuario a la variable rs y ya nos permite recorrer
         // las filas de la tabla del usuario introducido en el login.
 
-        try {
-
-            añadirTablas(user);
-        } catch (SQLException ex) {
-            Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        ocultarBotonesNuevoCoche();
         mostrarPrimerRegistro(user);
+        añadirTablasCoches(user);
+        añadirTablasRutas(user);
+
+        ocultarBotonesNuevoCoche();
 
     }
 
@@ -75,31 +81,26 @@ public final class PanelDetalle extends javax.swing.JPanel {
     public void mostrarDatos() //metodo para mostrar datos
     {
 
-        try {
-            jlabelNumeroActual.setText(rs.getRow() + " / " + numfilas);
-            textFieldModelo.setText(Coche.getModelo());  
-            textFieldColor.setText(Coche.getColor());
+        jlabelNumeroActual.setText(contador + " / " + numfilas);
+        TextFieldCodCoche.setText(String.valueOf(Coche.getCod_coche()));
+        textFieldModelo.setText(Coche.getModelo());
+        textFieldColor.setText(Coche.getColor());
+    }
 
-            if (rs.isLast()) //si está sobre la última tupla, anula el botón siguiente
-            {
-                btnSiguiente.setEnabled(false);
-                btnUltimo.setEnabled(false);
-                btnAnterior.setEnabled(true);
-                btnPrimero.setEnabled(true);
-            }
+    public void RecogerDatosModelo(int codigo_coche, String modelo, String color) {
 
-            if (rs.isFirst()) {
+        codigo_coche = Integer.parseInt(TextFieldCodCoche.getText());
+        modelo = textFieldModelo.getText();
+        color = textFieldColor.getText();
 
-                btnAnterior.setEnabled(false);
-                btnPrimero.setEnabled(false);
-                btnSiguiente.setEnabled(true);
-                btnUltimo.setEnabled(true);
+    }
 
-            }
+    public int RecogerDatosCodigo_coche() {
 
-        } catch (SQLException ex) {
-            Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        int Codigo_coche = Integer.parseInt(TextFieldCodCoche.getText());
+
+        return Codigo_coche;
+
     }
 
 //    
@@ -109,36 +110,71 @@ public final class PanelDetalle extends javax.swing.JPanel {
 
         try {
 
-            lblUsuario.setText(Usuario.getNombre());
-//            
             ConsultaDetalle.inicial(user);  // para usar los coches como objetos.
 
-            System.out.println(" 1º Modelo objeto coche inicial " + Coche.getModelo());
-            System.out.println(" 1º Color objeto coche inicial " + Coche.getColor());
+            mostrarDatos();
+            // Se encontró al menos un resultado, procesa los datos
 
-            jlabelNumeroActual.setText(rs.getRow() + " / " + numfilas);
-            textFieldModelo.setText(Coche.getModelo());
-            textFieldColor.setText(Coche.getColor());
+            btnAnterior.setEnabled(false);
+            btnPrimero.setEnabled(false);// Habilita el botón "Anterior" ya que hay al menos un resultado
+            lblUsuario.setText(Usuario.getNombre());
 
-            /*cochesLista = ConsultaDetalle.listaCoches(user);  // aqui le paso el return listacoches de la clase ConsultaDetalle a la variable cochesLista
-
-            System.out.println("Tamaño de la lista " + cochesLista.size());*/
         } catch (SQLException ex) {
             Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void añadirTablas(Usuario user) throws SQLException {  // solo me muestra 2 coches en vez de 4
+    public void añadirTablasCoches(Usuario user) throws SQLException {
 
         modelo = (DefaultTableModel) Tabla.getModel();
+        ArrayList<Coche> cochesLista = ConsultaDetalle.listaCoches(user);
 
-        while (rs.next()) {
+        borrarTodosElementosTablaCoches();
 
-            ConsultaDetalle.Siguiente(user);  // no se por que ha funcionado esto
-            modelo.addRow(new String[]{String.valueOf(Coche.getCod_coche()), Coche.getModelo(), Coche.getColor()});
+        // Utiliza un iterador para recorrer la lista de coches
+        Iterator<Coche> iterator = cochesLista.iterator();
 
+        System.out.println("Tamaño lista " + cochesLista.size());
+
+        // Mientras haya coches en la lista, agrega filas a la tabla
+        while (iterator.hasNext()) {
+
+            ConsultaDetalle.Atras(user);  //  uso atras para que muestre del ultimo al primero.
+            Coche coche = iterator.next();
+            modelo.addRow(new String[]{
+                String.valueOf(coche.getCod_coche()),
+                coche.getModelo(),
+                coche.getColor()
+            });
         }
+    }
 
+    public void borrarTodosElementosTablaCoches() {
+        DefaultTableModel modelo = (DefaultTableModel) Tabla.getModel();
+        modelo.setRowCount(0);
+    }
+
+    public void añadirTablasRutas(Usuario user) throws SQLException {
+        modelo = (DefaultTableModel) Tabla1.getModel();
+        Ruta ruta;
+
+        //rs = ConsultaDetalle.getResultSetRutas(user);
+        // Utiliza un iterador para recorrer la lista de rutas
+        Iterator<Ruta> iterator = listaRutas.iterator();
+
+        System.out.println("Tamaño lista " + listaRutas.size());
+
+        // Mientras haya rutas en la lista, agrega filas a la tabla
+        while (iterator.hasNext()) {
+            //ConsultaDetalle.Atras(user); // Revisa si esta línea es necesaria
+            ruta = iterator.next();
+            modelo.addRow(new String[]{
+                String.valueOf(ruta.getCod_ruta()),
+                ruta.getDestino(),
+                ruta.getOrigen(),
+                String.valueOf(ruta.getDistancia_km())
+            });
+        }
     }
 
     public void VisibilizarBotonesNuevoCoche() {
@@ -230,6 +266,12 @@ public final class PanelDetalle extends javax.swing.JPanel {
         textFieldColorCoche = new javax.swing.JTextField();
         txtColorCoche = new javax.swing.JLabel();
         btnAñadir = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        Tabla1 = new javax.swing.JTable();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        JLabelCodCoche = new javax.swing.JLabel();
+        TextFieldCodCoche = new javax.swing.JTextField();
 
         textFieldColor.setText("jTextField1");
 
@@ -285,10 +327,15 @@ public final class PanelDetalle extends javax.swing.JPanel {
 
             },
             new String [] {
-                "Cod_Coche", "Modelo", "Color", "Ruta"
+                "Cod_Coche", "Modelo", "Color"
             }
         ));
         jScrollPane1.setViewportView(Tabla);
+        if (Tabla.getColumnModel().getColumnCount() > 0) {
+            Tabla.getColumnModel().getColumn(0).setHeaderValue("Cod_Coche");
+            Tabla.getColumnModel().getColumn(1).setHeaderValue("Modelo");
+            Tabla.getColumnModel().getColumn(2).setHeaderValue("Color");
+        }
 
         txtCodigCoche.setText("Codigo Coche");
 
@@ -312,62 +359,108 @@ public final class PanelDetalle extends javax.swing.JPanel {
 
         btnAñadir.setText("AÑADIR");
 
+        Tabla1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Cod_ruta", "Origen", "Destino", "Distancia_km"
+            }
+        ));
+        jScrollPane2.setViewportView(Tabla1);
+
+        jLabel4.setText("RUTAS");
+
+        jLabel5.setText("COCHES");
+
+        JLabelCodCoche.setText("Cod_coche");
+
+        TextFieldCodCoche.setText("jTextField1");
+        TextFieldCodCoche.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TextFieldCodCocheActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(99, 99, 99)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(19, 19, 19)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel1)
-                                .addComponent(jLabel2)))
+                        .addGap(99, 99, 99)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(lblUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(71, 71, 71)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(textFieldModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(textFieldColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(42, 42, 42)
+                                        .addComponent(JLabelCodCoche))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addGap(33, 33, 33)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                    .addComponent(jLabel3)
+                                                    .addComponent(jLabel1))
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addGroup(layout.createSequentialGroup()
+                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                        .addComponent(lblUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                    .addGroup(layout.createSequentialGroup()
+                                                        .addGap(71, 71, 71)
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                            .addComponent(TextFieldCodCoche, javax.swing.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE)
+                                                            .addComponent(textFieldModelo)
+                                                            .addComponent(textFieldColor)))))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(9, 9, 9)
+                                                .addComponent(jLabel2)))))
+                                .addGap(47, 47, 47)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtCodigCoche)
+                                    .addComponent(txtModeloCoche)
+                                    .addComponent(txtRutaCoche)
+                                    .addComponent(txtColorCoche))
+                                .addGap(41, 41, 41)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(textFieldColorCoche, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(textFieldModeloCoche, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(textFieldCodigoCoche, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(textFieldRutaCoche, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btnPrimero)
+                                    .addComponent(btnAnterior)
+                                    .addComponent(lblNumero, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(jlabelNumeroActual, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(29, 29, 29)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(btnSiguiente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(btnUltimo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnPrimero)
-                            .addComponent(btnAnterior)
-                            .addComponent(lblNumero, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(29, 29, 29)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(btnSiguiente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnUltimo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGap(151, 151, 151)
+                                .addComponent(btnAñadir)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel5)
+                                .addGap(125, 125, 125)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jlabelNumeroActual, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addGap(47, 47, 47)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtCodigCoche)
-                    .addComponent(txtModeloCoche)
-                    .addComponent(txtRutaCoche)
-                    .addComponent(txtColorCoche))
-                .addGap(41, 41, 41)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(textFieldColorCoche, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textFieldModeloCoche, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textFieldCodigoCoche, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textFieldRutaCoche, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(238, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(151, 151, 151)
-                .addComponent(btnAñadir)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
+                                .addGap(113, 113, 113)
+                                .addComponent(jLabel4)
+                                .addGap(0, 107, Short.MAX_VALUE)))))
+                .addGap(18, 18, 18))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -378,15 +471,19 @@ public final class PanelDetalle extends javax.swing.JPanel {
                     .addComponent(lblUsuario))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(65, 65, 65)
+                        .addGap(35, 35, 35)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(JLabelCodCoche)
+                            .addComponent(TextFieldCodCoche, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(textFieldModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(textFieldColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2))
-                        .addGap(48, 48, 48)
+                        .addGap(60, 60, 60)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblNumero)
                             .addComponent(jlabelNumeroActual))
@@ -415,46 +512,90 @@ public final class PanelDetalle extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnPrimero)
                     .addComponent(btnUltimo))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnAñadir))
-                .addContainerGap(16, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel5)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnAñadir)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSiguienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSiguienteActionPerformed
 
-        Usuario user = null;
+        contador++;
+
+        Coche coche = null;
 
         try {
-
-            ConsultaDetalle.Siguiente(user); // para usar los coches objeto
-
-            System.out.println("siguiente Modelo objeto coche " + Coche.getModelo());
-            System.out.println("siguiente Color objeto coche " + Coche.getColor());
-            mostrarDatos();
-
+            coche = ConsultaDetalle.Siguiente(user);
         } catch (SQLException ex) {
             Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        try {
+
+            if (ConsultaDetalle.ultimoCoche()) {
+
+                //añadirTablasRutas(user);
+                // Hay un coche siguiente, procesa los datos y habilita los botones correspondientes
+                btnSiguiente.setEnabled(false);
+                btnAnterior.setEnabled(true);
+                btnPrimero.setEnabled(true);
+                btnUltimo.setEnabled(false);
+            } else {
+                // No hay más coches siguientes, desactiva el botón "Siguiente" y "Último"
+
+                btnUltimo.setEnabled(true);
+                btnAnterior.setEnabled(true);
+                btnPrimero.setEnabled(true);
+
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        mostrarDatos();
 
     }//GEN-LAST:event_btnSiguienteActionPerformed
 
     private void btnAnteriorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnteriorActionPerformed
 
-        Usuario user = null;
+        btnSiguiente.setEnabled(true);
+        btnUltimo.setEnabled(true);
+
+        contador--;
+
+        Coche coche;
         try {
 
-            ConsultaDetalle.Atras(user);
+            coche = ConsultaDetalle.Atras(user);
 
-            System.out.println("anterior Modelo objeto coche " + Coche.getModelo());
-            System.out.println("anterior Color objeto coche " + Coche.getColor());
-            mostrarDatos();
+            if (ConsultaDetalle.primerCoche()) {
+
+                btnPrimero.setEnabled(false);
+                btnAnterior.setEnabled(false); // Habilita el botón "Anterior" ya que hay al menos un resultado
+            } else {
+                // No hay resultados, desactiva el botón "Anterior"
+                btnPrimero.setEnabled(true);
+
+            }
 
         } catch (SQLException ex) {
             Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        mostrarDatos();
+
+
     }//GEN-LAST:event_btnAnteriorActionPerformed
 
     private void textFieldModeloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textFieldModeloActionPerformed
@@ -463,20 +604,26 @@ public final class PanelDetalle extends javax.swing.JPanel {
 
     private void btnUltimoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUltimoActionPerformed
 
+        Coche coche;
         try {
-            rs.last();
+
+            coche = ConsultaDetalle.Ultimo(user);
             mostrarDatos();
+
+            btnPrimero.setVisible(true);
+            btnAnterior.setVisible(true);
 
         } catch (SQLException ex) {
             Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }//GEN-LAST:event_btnUltimoActionPerformed
 
     private void btnPrimeroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrimeroActionPerformed
 
+        Coche coche;
         try {
-            rs.first();
+
+            coche = ConsultaDetalle.inicial(user);
             mostrarDatos();
 
         } catch (SQLException ex) {
@@ -492,9 +639,16 @@ public final class PanelDetalle extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_textFieldColorCocheActionPerformed
 
+    private void TextFieldCodCocheActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextFieldCodCocheActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TextFieldCodCocheActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel JLabelCodCoche;
     private javax.swing.JTable Tabla;
+    private javax.swing.JTable Tabla1;
+    private javax.swing.JTextField TextFieldCodCoche;
     private javax.swing.JButton btnAnterior;
     private javax.swing.JButton btnAñadir;
     private javax.swing.JButton btnPrimero;
@@ -503,7 +657,10 @@ public final class PanelDetalle extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel jlabelNumeroActual;
     private javax.swing.JLabel lblNumero;
     private javax.swing.JLabel lblUsuario;

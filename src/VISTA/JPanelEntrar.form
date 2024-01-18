@@ -84,7 +84,7 @@
     </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldUsuario">
       <Properties>
-        <Property name="text" type="java.lang.String" value="usuario"/>
+        <Property name="text" type="java.lang.String" value="Juan Perez"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonAceptar">

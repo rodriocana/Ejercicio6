@@ -7,6 +7,7 @@ package VISTA;
 
 //import CONTROLADOR.ConsultaDetalle;
 import CONTROLADOR.AccionesSql;
+import CONTROLADOR.ConsultaDetalle;
 import CONTROLADOR.JavaConnect;
 import CONTROLADOR.MiExcepcion;
 import MODELO.Usuario;
@@ -30,8 +31,6 @@ public class JFramePrincipal extends javax.swing.JFrame {
         this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         // creo aquí los paneles, así cada uno siempre será el mismo.
         jPanelInicio = new JPanelInicio();
-        
-        
 
         //para INICIAR LA BASE DE DATOS;
         try {
@@ -46,7 +45,7 @@ public class JFramePrincipal extends javax.swing.JFrame {
         VisualizarMenu.setVisible(false);
         jmenuAñadirEliminar.setVisible(false);
 
-        jPanelEntrar = new JPanelEntrar(this);
+        jPanelEntrar = new JPanelEntrar(this); // aqui declaro una instancia de jPanelEntrar para poder usar sus metodos en esta vista
         this.cambiarPanel(jPanelInicio);
 
     }
@@ -56,6 +55,15 @@ public class JFramePrincipal extends javax.swing.JFrame {
         DetalleItem.setVisible(true);
         ResumenItem.setVisible(true);
         VisualizarMenu.setVisible(true);
+
+    }
+
+    public void deshabilitarBotones() {
+
+        DetalleItem.setVisible(false);
+        ResumenItem.setVisible(false);
+        VisualizarMenu.setVisible(false);
+        jmenuAñadirEliminar.setVisible(false);
 
     }
 
@@ -92,6 +100,11 @@ public class JFramePrincipal extends javax.swing.JFrame {
         jMenuValidar.add(jMenuItemEntrar);
 
         jMenuItemSalir.setText("Salir");
+        jMenuItemSalir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemSalirActionPerformed(evt);
+            }
+        });
         jMenuValidar.add(jMenuItemSalir);
 
         jMenuBar1.add(jMenuValidar);
@@ -127,6 +140,11 @@ public class JFramePrincipal extends javax.swing.JFrame {
         jmenuAñadirEliminar.add(jMenuItem1);
 
         jMenuItem3.setText("Modificar coche");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
         jmenuAñadirEliminar.add(jMenuItem3);
 
         jMenuItem2.setText("Eliminar coche");
@@ -190,7 +208,11 @@ public class JFramePrincipal extends javax.swing.JFrame {
     //esta funcion muestra el panel DETALLE
     private void DetalleItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DetalleItemActionPerformed
 
-        jPanelDetalle = new PanelDetalle(jpanel);  // aqui creo el objeto jPanelDetalle para poder entrar en sus metodos de clase, donde entro al darle a nuevo coche.
+        try {
+            jPanelDetalle = new PanelDetalle(jpanel);  // aqui creo el objeto jPanelDetalle para poder entrar en sus metodos de clase, donde entro al darle a nuevo coche.
+        } catch (SQLException ex) {
+            Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
         jmenuAñadirEliminar.setVisible(true);
         this.cambiarPanel(jPanelDetalle);
 
@@ -207,16 +229,60 @@ public class JFramePrincipal extends javax.swing.JFrame {
     //ELIMINAR
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
 
-        
+        try {
+            Usuario user = null;
+            //jPanelDetalle.VisibilizarBotonesNuevoCoche();
+            AccionesSql.borrarCoche(user);  // esto funciona perfectamente
+            JavaConnect.connectdb();
+            rs = ConsultaDetalle.getResultSet(user);
+            jPanelDetalle.mostrarDatos();
+            try {
+
+                jPanelDetalle.añadirTablasCoches(user);  // hace falta borrar la antigua y enseñar la 
+            } catch (SQLException ex) {
+                Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (MiExcepcion ex) {
+            Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
-    
     // NUEVO COCHE
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-       
-       jPanelDetalle.VisibilizarBotonesNuevoCoche();
-        
+
+        try {
+            Usuario user = null;
+
+            AccionesSql.insertarCoche(user);  // esto funciona perfectamente
+            JavaConnect.connectdb();
+            rs = ConsultaDetalle.getResultSet(user);
+            jPanelDetalle.mostrarDatos();
+            try {
+                jPanelDetalle.añadirTablasCoches(user);  // hace falta borrar la antigua y enseñar la 
+            } catch (SQLException ex) {
+                Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (MiExcepcion ex) {
+            Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    // BOTON SALIR
+    private void jMenuItemSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemSalirActionPerformed
+
+        jPanelEntrar.resetearDatos();
+        deshabilitarBotones();
+
+    }//GEN-LAST:event_jMenuItemSalirActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+
+        Usuario usuario = null;
+
+        AccionesSql.ActualizarCoche(usuario);  // esto funciona perfectamente
+
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void cambiarPanel(javax.swing.JPanel panel) {
         this.setContentPane(panel);

@@ -88,6 +88,13 @@ public class JPanelEntrar extends javax.swing.JPanel {
         }
 
     }
+    
+    public void resetearDatos(){
+        
+        jTextArea1.setText("");
+        jTextFieldUsuario.setText("");
+        jPasswordField1.setText("");
+    }
 
     public void usuarioValidado() throws SQLException {
 
@@ -122,7 +129,7 @@ public class JPanelEntrar extends javax.swing.JPanel {
 
         jLabelContrasena.setText("Contraseña:");
 
-        jTextFieldUsuario.setText("usuario");
+        jTextFieldUsuario.setText("Juan Perez");
 
         jButtonAceptar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jButtonAceptar.setText("Aceptar");

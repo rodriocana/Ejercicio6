@@ -63,12 +63,12 @@ public class Usuario {
         Usuario.nombre = nombre;
     }
 
-    static public float getSueldo() {
+     static public float getSueldo() {
         return sueldo;
     }
 
-    public void setSueldo(float sueldo) {
-        this.sueldo = sueldo;
+    static public void setSueldo(float sueldo) {
+        Usuario.sueldo = sueldo;
     }
 
     static public String getFechaAlta() {
@@ -84,15 +84,31 @@ public class Usuario {
         return password;
     }
 
+    public static GregorianCalendar getFechaalta() {
+        return fechaalta;
+    }
+
+    public static void setFechaalta(GregorianCalendar fechaalta) {
+        Usuario.fechaalta = fechaalta;
+    }
+
+    static public  String getDNI() {
+        return DNI;
+    }
+
+    public static void setDNI(String DNI) {
+        Usuario.DNI = DNI;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
+    static public void setImagen(String imagen) {
+        Usuario.imagen = imagen;
     }
 
-    public String getImagen() {
+    static public String getImagen() {
         return imagen;
     }
 }

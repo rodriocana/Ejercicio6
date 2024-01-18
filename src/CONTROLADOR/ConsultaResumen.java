@@ -20,20 +20,21 @@ import java.util.logging.Logger;
  * @author Rodri
  */
 public class ConsultaResumen {
-    
+
     private static ResultSet rs;
     ResultSet rsAux;
     int numfilas = 0;
+    public ResultSet getResultSet;
 
     public ConsultaResumen() {
     }
-    
-    public static ResultSet getResultSet(Usuario user) {
+
+    public static ResultSet getResultSet() {
 
         try {
 
             Statement stmt = JavaConnect.getConnection().createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = stmt.executeQuery("SELECT * FROM usuario");  
+            rs = stmt.executeQuery("SELECT * FROM usuario");
 
             return rs;
 
@@ -44,56 +45,73 @@ public class ConsultaResumen {
 
         return null;
     }
-    
+
+    public static ResultSet getResultSetCoches() {
+
+        try {
+
+            java.sql.Statement stmt = JavaConnect.getConnection().createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = stmt.executeQuery("SELECT * FROM coche WHERE cod_usuario = " + Usuario.getNumero() + "");
+
+            System.out.println("Numero de socio: " + Usuario.getNumero());
+            System.out.println("Color del coche primero " + Coche.getColor());
+            return rs;
+
+        } catch (SQLException ex) {
+
+            Logger.getLogger(JPanelEntrar.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
+    }
+
     public static Usuario inicial() throws SQLException {
 
         Usuario usuario = new Usuario();
 
         rs.first();
+        Usuario.setNumero(rs.getInt("numero"));
         Usuario.setNombre(rs.getString("Nombre"));
-        Usuario.setNumero(rs.getInt("cod_usuario"));
-        //coche.setColor(rs.getString("COLOR"));
-        //coche.setModelo(rs.getString("MODELO"));
+        Usuario.setSueldo(rs.getFloat("sueldo"));
+        Usuario.setDNI(rs.getString("nif"));
+        Usuario.setImagen(rs.getString("foto"));
 
         return usuario;
     }
 
-    public static Coche Siguiente(Usuario usuario) throws SQLException {
+    public static Usuario Siguiente() throws SQLException {
 
-        Coche coche = new Coche();
+        Usuario usuario = new Usuario();
 
         if (rs != null && rs.next()) {
-            coche.setCod_coche(rs.getInt("cod_coche"));
-            coche.setCodigo_usuario(rs.getInt("cod_usuario"));
-            coche.setColor(rs.getString("COLOR"));
-            coche.setModelo(rs.getString("MODELO"));
+            Usuario.setNumero(rs.getInt("numero"));
+            Usuario.setNombre(rs.getString("Nombre"));
+            Usuario.setSueldo(rs.getFloat("sueldo"));
+            Usuario.setDNI(rs.getString("nif"));
+            Usuario.setImagen(rs.getString("foto"));
 
         }
 
-        return coche;
+        return usuario;
 
     }
 
-    public static Coche Atras(Usuario usuario) throws SQLException {
+    public static Usuario Atras() throws SQLException {
 
-        Coche coche = new Coche();
+        Usuario usuario = new Usuario();
 
-       /* if (!rs.isAfterLast()) {
+        /* if (!rs.isAfterLast()) {
 
         }*/
-       
         rs.previous();
-        coche.setCod_coche(rs.getInt("cod_coche"));
-        coche.setCodigo_usuario(rs.getInt("cod_usuario"));
-        coche.setColor(rs.getString("COLOR"));
-        coche.setModelo(rs.getString("MODELO"));
+        Usuario.setNumero(rs.getInt("numero"));
+        Usuario.setNombre(rs.getString("Nombre"));
+        Usuario.setSueldo(rs.getFloat("sueldo"));
+        Usuario.setDNI(rs.getString("nif"));
+        Usuario.setImagen(rs.getString("foto"));
 
-        return coche;
+        return usuario;
 
     }
-    
-    
-    
+
 }
-
-

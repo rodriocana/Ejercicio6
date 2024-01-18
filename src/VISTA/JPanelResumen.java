@@ -4,7 +4,10 @@
  */
 package VISTA;
 
+import CONTROLADOR.ConsultaDetalle;
+import CONTROLADOR.ConsultaResumen;
 import CONTROLADOR.JavaConnect;
+import MODELO.Coche;
 import MODELO.Usuario;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -37,50 +40,31 @@ public class JPanelResumen extends javax.swing.JPanel {
     public JPanelResumen() {
         initComponents();
 
-        DatoUsuario();
+        ConsultaResumen resumen = new ConsultaResumen(); // 
+        rs = resumen.getResultSet();
+        //DatoUsuario();  // si se jode algo borrar mostrarPrimer y descomentar datoUsuario();
+
+        mostrarPrimerRegistro();
 
     }
 
-    public void DatoUsuario() {
+    public void mostrarPrimerRegistro() {
+
+        Usuario usuario = null;
 
         try {
 
-            java.sql.Statement stmt = JavaConnect.getConnection().createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = stmt.executeQuery("SELECT * FROM usuario");
+            lblUsuario.setText(Usuario.getNombre());
+//            
+            usuario = ConsultaResumen.inicial();  // hay que pasarle el return usuario a la variable usuario para usarla en esta funcion.
 
-            if (rs.first()) //pasa a la siguiente tupla
-            {
-                mostrarDatos();
-                btnAnterior.setEnabled(false);
-                btnPrimero.setEnabled(false);
-            }
-
-            // rs.close();
-            //stmt.close();
-        } catch (Exception e) {
-            System.out.println("ALGO HA FALLADO EN -> PanelDetalle -> datosUsuario()");
-            System.out.println(e);
-        }
-    }
-    
-    public void DatosUsuarios(){
-        
-        
-        
-        
-    }
-
-    public void mostrarDatos() //metodo para mostrar datos
-    {
-        try {
             lblNumActual.setText(rs.getRow() + " / " + numfilas);
-            textFieldCodigo.setText(rs.getString("numero"));
-            textFieldNombre.setText(rs.getString("nombre"));
-            textFieldSueldo.setText(rs.getString("sueldo"));
-            textviewDNI.setText(rs.getString("NIF"));
+            textFieldCodigo.setText(String.valueOf(Usuario.getNumero()));
+            textFieldNombre.setText(usuario.getNombre());
+            textviewDNI.setText(usuario.getDNI());
+            textFieldSueldo.setText(String.valueOf(usuario.getSueldo()));
+            rutaImagen = usuario.getImagen();
 
-            rutaImagen = rs.getString("foto");
-            
             if (rutaImagen != null && !rutaImagen.isEmpty()) {
                 javax.swing.ImageIcon imagenIcon = new javax.swing.ImageIcon(getClass().getResource(rutaImagen));
                 if (imagenIcon != null) {
@@ -93,7 +77,43 @@ public class JPanelResumen extends javax.swing.JPanel {
             } else {
                 lblFotoUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ejercicio6/foto/default.jpg"))); // Imagen por defecto
             }
-            
+
+        } catch (SQLException ex) {
+            Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void mostrarDatos() //metodo para mostrar datos
+    {
+
+        Usuario usuario = null;
+
+        try {
+
+            lblUsuario.setText(Usuario.getNombre());
+
+            lblNumActual.setText(rs.getRow() + " / " + numfilas);
+            textFieldCodigo.setText(String.valueOf(Usuario.getNumero()));
+            textFieldNombre.setText(usuario.getNombre());
+            textviewDNI.setText(usuario.getDNI());
+            textFieldSueldo.setText(String.valueOf(usuario.getSueldo()));
+            rutaImagen = usuario.getImagen();
+
+            lblNumActual.setText(rs.getRow() + " / " + numfilas);
+
+            if (rutaImagen != null && !rutaImagen.isEmpty()) {
+                javax.swing.ImageIcon imagenIcon = new javax.swing.ImageIcon(getClass().getResource(rutaImagen));
+                if (imagenIcon != null) {
+                    java.awt.Image imagenEscalada = imagenIcon.getImage().getScaledInstance(200, 200, java.awt.Image.SCALE_SMOOTH);
+                    lblFotoUsuario.setIcon(new javax.swing.ImageIcon(imagenEscalada));
+                } else {
+                    // Manejar el caso en que no se pueda cargar la imagen
+                    System.out.println("No se pudo cargar la imagen desde: " + rutaImagen);
+                }
+            } else {
+                lblFotoUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ejercicio6/foto/default.jpg"))); // Imagen por defecto
+            }
+
             java.sql.Timestamp timestamp = rs.getTimestamp("fechaalta");
             if (timestamp != null) {
                 fecha = new GregorianCalendar();
@@ -319,7 +339,17 @@ public class JPanelResumen extends javax.swing.JPanel {
 
     private void btnAnteriorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnteriorActionPerformed
 
+        Usuario usuario = null;
         try {
+
+            usuario = ConsultaResumen.Atras();
+            mostrarDatos();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        /*try {
             rs.previous(); //pasa a la anterior tupla
             mostrarDatos();
 
@@ -335,16 +365,30 @@ public class JPanelResumen extends javax.swing.JPanel {
 
         } catch (SQLException ex) {
             Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }*/
 
     }//GEN-LAST:event_btnAnteriorActionPerformed
 
     private void btnSiguienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSiguienteActionPerformed
 
+        Usuario usuario = null;
+
         try {
 
-            rs.next(); //pasa a la siguiente tupla
+            usuario = ConsultaResumen.Siguiente(); // para usar los coches objeto
+
             mostrarDatos();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        /*Usuario usuario = null;
+        try {
+
+            //rs.next(); //pasa a la siguiente tupla
+            usuario = ConsultaResumen.Siguiente();
+            //mostrarDatos();
 
             btnAnterior.setEnabled(true);
             btnPrimero.setEnabled(true);
@@ -357,7 +401,7 @@ public class JPanelResumen extends javax.swing.JPanel {
 
         } catch (SQLException ex) {
             Logger.getLogger(PanelDetalle.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }*/
 
     }//GEN-LAST:event_btnSiguienteActionPerformed
 
@@ -370,6 +414,8 @@ public class JPanelResumen extends javax.swing.JPanel {
         //Creo la nueva ventana
         JFrame VistaCoches = new JFrame();
         VistaCoches.setSize(400, 200);
+        Usuario usuario;
+        Coche coche;
 
         DefaultListModel<String> listaModelo = new DefaultListModel<>();
         JList<String> ListaCoches = new JList<>(listaModelo);
@@ -382,9 +428,11 @@ public class JPanelResumen extends javax.swing.JPanel {
 
         try {
 
+            //rsAux = ConsultaResumen.getResultSetCoches();  // aqui está el problema, solo lo recoge una vez
             //Creo la lista de empleados
             java.sql.Statement stmt = JavaConnect.getConnection().createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rsAux = stmt.executeQuery("SELECT * FROM coche WHERE cod_usuario = " + rs.getInt("numero") + "");
+            //rsAux = stmt.executeQuery("SELECT * FROM coche WHERE cod_usuario = " + rs.getInt("numero") + "");
+            rsAux = stmt.executeQuery("SELECT * FROM coche WHERE cod_usuario = " + Usuario.getNumero() + "");
 
             while (rsAux.next()) {
 
@@ -399,6 +447,24 @@ public class JPanelResumen extends javax.swing.JPanel {
                     .getName()).log(Level.SEVERE, null, ex);
         }
 
+        /*try {
+
+            //Creo la lista de empleados
+            
+            rsAux = ConsultaResumen.getResultSetCoches();
+
+            while (rsAux.next()) {
+
+                listaModelo.addElement(
+                        (Coche.getModelo()) + ", "
+                        + (Coche.getColor())   // como puedo asociar cada coche objeto a cada usuario???
+                );
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(JPanelResumen.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }*/
 
     }//GEN-LAST:event_btnListaCochesActionPerformed
 

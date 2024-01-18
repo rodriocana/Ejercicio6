@@ -12,6 +12,8 @@ public class JavaConnect {
     private static final Logger logger = MyLogger.getLogger();
 
     public static Connection connectdb() throws MiExcepcion {
+        
+        
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             System.out.println("Driver encontrado");

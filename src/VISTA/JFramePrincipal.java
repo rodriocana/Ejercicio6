@@ -230,26 +230,29 @@ public class JFramePrincipal extends javax.swing.JFrame {
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
 
         try {
-        Usuario user = null;
+            Usuario user = null;
 
-        // Crear una instancia de AccionesSql
-        AccionesSql accionesSql = new AccionesSql(jPanelDetalle);
+            // Crear una instancia de AccionesSql
+            AccionesSql accionesSql = new AccionesSql(jPanelDetalle);
 
-        // Llamar al método no estático borrarCoche
-        accionesSql.borrarCoche(user);
+            // Llamar al método no estático borrarCoche
+            accionesSql.borrarCoche(user);
 
-        JavaConnect.connectdb();
-        rs = ConsultaDetalle.getResultSet(user);
-        jPanelDetalle.mostrarDatos();
-        
-        try {
-            jPanelDetalle.añadirTablasCoches(user);
-        } catch (SQLException ex) {
+            JavaConnect.connectdb();
+            rs = ConsultaDetalle.getResultSet(user);
+            jPanelDetalle.mostrarDatos();
+
+            try {
+                jPanelDetalle.añadirTablasCoches(user);
+            } catch (SQLException ex) {
+                Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (MiExcepcion ex) {
             Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
-    } catch (MiExcepcion ex) {
-        Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
-    }
+
+        jPanelDetalle.mostrarDatos();
+
 
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
@@ -260,7 +263,7 @@ public class JFramePrincipal extends javax.swing.JFrame {
             Usuario user = null;
             AccionesSql accionesSql = new AccionesSql(jPanelDetalle);
             accionesSql.insertarCoche(user);  // esto funciona perfectamente
-            
+
             JavaConnect.connectdb();
             rs = ConsultaDetalle.getResultSet(user);
             jPanelDetalle.mostrarDatos();
@@ -272,6 +275,9 @@ public class JFramePrincipal extends javax.swing.JFrame {
         } catch (MiExcepcion ex) {
             Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        jPanelDetalle.mostrarDatos();
+
 
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
@@ -288,11 +294,10 @@ public class JFramePrincipal extends javax.swing.JFrame {
 
         try {
             Usuario user = null;
-            
+
             AccionesSql accionesSql = new AccionesSql(jPanelDetalle);
             accionesSql.ActualizarCoche(user);  // esto funciona perfectamente
 
-           
             JavaConnect.connectdb();
             rs = ConsultaDetalle.getResultSet(user);
             jPanelDetalle.mostrarDatos();
@@ -304,6 +309,8 @@ public class JFramePrincipal extends javax.swing.JFrame {
         } catch (MiExcepcion ex) {
             Logger.getLogger(JFramePrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        jPanelDetalle.mostrarDatos();
 
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 

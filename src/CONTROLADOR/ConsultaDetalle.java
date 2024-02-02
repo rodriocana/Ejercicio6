@@ -217,7 +217,7 @@ public class ConsultaDetalle {
 
     }
 
-    public static Ruta Atras() throws SQLException {
+    public static Ruta RutaAtras() throws SQLException {
 
         Ruta ruta = new Ruta();
 
